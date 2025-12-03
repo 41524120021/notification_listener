@@ -9,12 +9,14 @@ import 'screens/data_transaksi_tab.dart';
 import 'screens/trx_qris_tab.dart';
 import 'screens/settings_screen.dart';
 import 'screens/privacy_policy_dialog.dart';
+import 'screens/donation_dialog.dart';
 import 'services/notification_service.dart';
 import 'services/rules_manager.dart';
 import 'services/transaction_service.dart';
 import 'services/foreground_task_handler.dart';
 import 'services/settings_manager.dart';
 import 'services/privacy_policy_manager.dart';
+import 'services/app_event_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -118,6 +120,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Timer? _refreshTimer;
   Timer? _countdownTimer;
   Timer? _retryTimer; // Timer untuk retry transaksi gagal
+  StreamSubscription? _donationEventSubscription; // Subscription untuk donation events
   int _remainingTime = 120; // seconds
   int _refreshCounter = 0;
 
@@ -154,6 +157,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _checkUrlConfiguration();
       }
     });
+    
+    // Listen to donation events
+    _donationEventSubscription = AppEventManager().donationEventStream.listen((event) {
+      if (mounted) {
+        _showDonationDialog();
+      }
+    });
+  }
+  
+  Future<void> _showDonationDialog() async {
+    try {
+      await DonationDialog.show(context);
+    } catch (e) {
+      debugPrint('Error showing donation dialog: $e');
+    }
   }
 
   Future<void> _checkPrivacyPolicy() async {
@@ -546,6 +564,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _refreshTimer?.cancel();
     _countdownTimer?.cancel();
     _retryTimer?.cancel(); // Cancel retry timer
+    _donationEventSubscription?.cancel(); // Cancel donation event subscription
     super.dispose();
   }
 

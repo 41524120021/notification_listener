@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/transaction.dart';
 import 'settings_manager.dart';
+import 'donation_manager.dart';
 
 class TransactionService {
 
@@ -62,8 +63,8 @@ class TransactionService {
 
   /// Post transaksi ke 1 server saja (Base URL)
   /// Dengan fallback ke server kedua jika gagal
-  /// Return true jika posting sukses
-  static Future<bool> postTransaction({
+  /// Return Map dengan 'success' (bool) dan 'shouldShowDonation' (bool)
+  static Future<Map<String, dynamic>> postTransaction({
     required int amount,
     required String text,
     required String packageName,
@@ -76,7 +77,7 @@ class TransactionService {
       
       if (baseUrl == null || fallbackUrl == null) {
         print('❌ URLs not configured. Please configure in Settings.');
-        return false;
+        return {'success': false, 'shouldShowDonation': false};
       }
       
       // Try posting to primary server
@@ -103,7 +104,10 @@ class TransactionService {
             print('  ⚠️ Counter failed: $e');
           }
           
-          return true;
+          // Increment donation counter and check if should show donation
+          final shouldShowDonation = await DonationManager.incrementAndCheckShowDonation();
+          
+          return {'success': true, 'shouldShowDonation': shouldShowDonation};
         } else {
           print('❌ Post gagal ke primary server: ${response.statusCode}');
         }
@@ -135,7 +139,10 @@ class TransactionService {
             print('  ⚠️ Counter failed: $e');
           }
           
-          return true;
+          // Increment donation counter and check if should show donation
+          final shouldShowDonation = await DonationManager.incrementAndCheckShowDonation();
+          
+          return {'success': true, 'shouldShowDonation': shouldShowDonation};
         } else {
           print('❌ Post gagal ke fallback server: ${response.statusCode}');
         }
@@ -144,11 +151,11 @@ class TransactionService {
       }
 
       print('❌ Posting failed to all servers');
-      return false;
+      return {'success': false, 'shouldShowDonation': false};
       
     } catch (e) {
       print('❌ Error in postTransaction: $e');
-      return false;
+      return {'success': false, 'shouldShowDonation': false};
     }
   }
 

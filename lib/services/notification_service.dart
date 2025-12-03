@@ -5,6 +5,7 @@ import '../models/transaction.dart';
 import '../services/database_helper.dart';
 import '../services/rules_manager.dart';
 import '../services/transaction_service.dart';
+import '../services/app_event_manager.dart';
 import '../utils/text_extractor.dart';
 
 class NotificationService {
@@ -208,11 +209,14 @@ class NotificationService {
           print('📤 Posting to 3 servers: Rp $amountInt');
           
           // Post ke 3 server secara sequential
-          final allSuccess = await TransactionService.postTransaction(
+          final result = await TransactionService.postTransaction(
             amount: amountInt,
             text: text,
             packageName: packageName,
           );
+          
+          final allSuccess = result['success'] as bool;
+          final shouldShowDonation = result['shouldShowDonation'] as bool;
           
           if (allSuccess) {
             // Update status: berhasil terkirim
@@ -248,6 +252,11 @@ class NotificationService {
             // UI akan listen event ini untuk auto-refresh
             _transactionPostedController.add('transaction_posted');
             print('📢 Event broadcasted: transaction_posted');
+            
+            // Trigger donation event if needed
+            if (shouldShowDonation) {
+              AppEventManager().triggerDonationEvent();
+            }
           } else {
             // Gagal post, increment retry count
             await DatabaseHelper.instance.updateTransactionSyncStatus(
@@ -321,11 +330,14 @@ class NotificationService {
           if (amountInt > 0) {
             print('📤 Retrying post to 3 servers: Rp $amountInt');
             
-            final success = await TransactionService.postTransaction(
+            final result = await TransactionService.postTransaction(
               amount: amountInt,
               text: transaction.detail,
               packageName: matchedRule.packageName,
             );
+            
+            final success = result['success'] as bool;
+            final shouldShowDonation = result['shouldShowDonation'] as bool;
             
             if (success) {
               // Update status: berhasil terkirim
@@ -343,6 +355,11 @@ class NotificationService {
               // Broadcast event untuk auto-refresh UI
               _transactionPostedController.add('transaction_posted');
               print('📢 Event broadcasted: transaction_posted (retry)');
+              
+              // Trigger donation event if needed
+              if (shouldShowDonation) {
+                AppEventManager().triggerDonationEvent();
+              }
             } else {
               // Gagal lagi, increment retry count
               await DatabaseHelper.instance.updateTransactionSyncStatus(
@@ -519,11 +536,14 @@ class NotificationService {
         
         // Post to server
         print('📤 Posting to 3 servers: Rp $amountInt');
-        final success = await TransactionService.postTransaction(
+        final result = await TransactionService.postTransaction(
           amount: amountInt,
           text: text,
           packageName: packageName,
         );
+        
+        final success = result['success'] as bool;
+        final shouldShowDonation = result['shouldShowDonation'] as bool;
         
         if (success) {
           // Update status: berhasil terkirim
@@ -558,6 +578,11 @@ class NotificationService {
           // Broadcast event untuk auto-refresh UI
           _transactionPostedController.add('transaction_posted');
           print('📢 Event broadcasted: transaction_posted (active notification)');
+          
+          // Trigger donation event if needed
+          if (shouldShowDonation) {
+            AppEventManager().triggerDonationEvent();
+          }
         } else {
           // Gagal post, increment retry count
           await DatabaseHelper.instance.updateTransactionSyncStatus(

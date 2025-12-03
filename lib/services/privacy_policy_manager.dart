@@ -109,7 +109,7 @@ Anda dapat menarik persetujuan kapan saja dengan mencabut akses notifikasi atau 
 ---
 
 Untuk versi lengkap dalam Bahasa Inggris dan Indonesia, silakan kunjungi:
-https://github.com/[your-username]/notiflistener_share/blob/main/PRIVACY_POLICY.md
+https://github.com/41524120021/notiflistener_share/blob/main/PRIVACY_POLICY.md
 ''';
   }
 }

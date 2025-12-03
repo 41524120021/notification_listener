@@ -9,7 +9,7 @@
 - [ ] **App Icon**: 512x512 px, PNG format (sudah ada: `notiflistener.png`)
 - [ ] **Feature Graphic**: 1024x500 px untuk Play Store listing
 - [ ] **Screenshots**: Minimal 2 screenshot (phone & tablet jika support)
-- [ ] **Privacy Policy URL**: WAJIB jika app mengakses data sensitif
+- [x] **Privacy Policy URL**: ✅ https://github.com/41524120021/notification_listener/blob/main/PRIVACY_POLICY.md
 
 ### 2. **Permissions & Privacy**
 
@@ -26,26 +26,34 @@ App ini menggunakan **Notification Listener Service** yang merupakan **sensitive
 3. ✅ **Data Safety Form**: Isi dengan jujur di Play Console
 4. ✅ **Prominent Disclosure**: Jelaskan ke user SEBELUM minta permission
 
-#### Privacy Policy Template (Contoh):
-```
-KEBIJAKAN PRIVASI - NotifListener
+#### Privacy Policy:
+✅ **SUDAH TERSEDIA**: Privacy Policy sudah dibuat dan di-upload ke GitHub!
 
-1. Pengumpulan Data
-   - Aplikasi ini mengakses notifikasi untuk memproses transaksi perbankan
-   - Data yang dikumpulkan: isi notifikasi, nama bank, jumlah transaksi
-   
-2. Penggunaan Data
-   - Data digunakan untuk mencatat transaksi dan mengirim ke server Anda
-   - Data disimpan lokal di device dan di server yang Anda konfigurasi
-   
-3. Keamanan
-   - Data tidak dibagikan ke pihak ketiga
-   - Koneksi ke server menggunakan HTTPS
-   
-4. Hak User
-   - User dapat menghapus data kapan saja
-   - User dapat mencabut akses notifikasi dari Settings
+**Link Privacy Policy:**
 ```
+https://github.com/41524120021/notification_listener/blob/main/PRIVACY_POLICY.md
+```
+
+**Gunakan link ini di:**
+1. Play Console → App Content → Privacy Policy
+2. Data Safety Form
+3. App Description (optional)
+
+**Privacy Policy sudah mencakup:**
+- ✅ Penjelasan lengkap pengumpulan data notifikasi
+- ✅ Bagaimana data digunakan dan disimpan
+- ✅ Keamanan data dan transmisi
+- ✅ Hak user untuk menghapus data
+- ✅ Penjelasan semua permissions
+- ✅ Versi Bahasa Indonesia dan Inggris
+- ✅ Compliance dengan Google Play Store policies
+
+**In-App Privacy Consent:**
+✅ Dialog Privacy Policy sudah diimplementasi di aplikasi
+- Muncul otomatis saat pertama kali buka aplikasi
+- User HARUS menerima sebelum bisa menggunakan aplikasi
+- Consent disimpan di SharedPreferences
+
 
 ### 3. **App Signing & Build**
 

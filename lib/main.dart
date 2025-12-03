@@ -8,11 +8,13 @@ import 'screens/notif_rules_tab.dart';
 import 'screens/data_transaksi_tab.dart';
 import 'screens/trx_qris_tab.dart';
 import 'screens/settings_screen.dart';
+import 'screens/privacy_policy_dialog.dart';
 import 'services/notification_service.dart';
 import 'services/rules_manager.dart';
 import 'services/transaction_service.dart';
 import 'services/foreground_task_handler.dart';
 import 'services/settings_manager.dart';
+import 'services/privacy_policy_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -129,6 +131,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     
     _checkListeningStatus();
     _checkUrlConfiguration(); // Check if URLs are configured
+    
+    // Check privacy policy acceptance FIRST
+    _checkPrivacyPolicy();
+    
     _startTimers();
     
     // Load data awal (seperti B4A Activity_Create)
@@ -148,6 +154,48 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _checkUrlConfiguration();
       }
     });
+  }
+
+  Future<void> _checkPrivacyPolicy() async {
+    // Tunggu sebentar agar UI sudah ready
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    final hasAccepted = await PrivacyPolicyManager.hasAcceptedPrivacyPolicy();
+    
+    if (!hasAccepted && mounted) {
+      // Show privacy policy dialog
+      final accepted = await PrivacyPolicyDialog.show(context);
+      
+      if (!accepted) {
+        // User menolak - keluar dari aplikasi
+        if (mounted) {
+          // Show message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Anda harus menerima Kebijakan Privasi untuk menggunakan aplikasi ini'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+            ),
+          );
+          
+          // Exit app setelah 2 detik
+          await Future.delayed(const Duration(seconds: 2));
+          // Keluar dari aplikasi
+          SystemNavigator.pop();
+        }
+      } else {
+        // User menerima - show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Terima kasih! Anda dapat menggunakan aplikasi sekarang'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    }
   }
 
   Future<void> _checkUrlConfiguration() async {

@@ -1,0 +1,40 @@
+name: notlistfl
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Using local patched version with namespace support
+  flutter_notification_listener:
+    path: packages/flutter_notification_listener
+  shared_preferences: ^2.3.4
+  http: ^1.2.2
+  intl: ^0.19.0
+  sqflite: ^2.4.1
+  path_provider: ^2.1.5
+  path: ^1.9.0
+  # Foreground service untuk keep app alive
+  flutter_foreground_task: ^8.0.0
+  # WakeLock untuk menjaga CPU tetap aktif
+  wakelock_plus: ^1.2.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "notiflistener.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "notiflistener.png"

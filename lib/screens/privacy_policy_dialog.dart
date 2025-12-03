@@ -269,7 +269,10 @@ class _PrivacyPolicyDialogState extends State<PrivacyPolicyDialog> {
       ),
     );
   }
+}
 
+/// Helper class to show privacy policy dialog
+class PrivacyPolicyDialogHelper {
   /// Show privacy policy dialog
   /// Returns true jika user menerima, false jika menolak
   static Future<bool> show(BuildContext context) async {

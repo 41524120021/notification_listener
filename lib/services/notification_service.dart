@@ -24,6 +24,11 @@ class NotificationService {
   // Stream untuk listen event transaksi berhasil dipost
   static Stream<String> get onTransactionPosted => _transactionPostedController.stream;
 
+  // DUPLICATE PREVENTION: Track processed notifications by UID and content hash
+  // Ini mencegah notifikasi yang sama diproses berkali-kali
+  static final Set<String> _processedNotificationIds = {};
+  static const int _maxProcessedIds = 1000; // Limit untuk mencegah memory leak
+
   static bool get isListening => _isListening;
 
   static Future<void> initialize() async {
@@ -148,6 +153,37 @@ class NotificationService {
     _isProcessing = false;
   }
 
+  /// Generate unique ID untuk notifikasi berdasarkan konten
+  /// Kombinasi: packageName + amount + timestamp (rounded to minute)
+  static String _generateNotificationId(String packageName, String text, String? uid) {
+    // Gunakan UID jika ada
+    if (uid != null && uid.isNotEmpty) {
+      return uid;
+    }
+    
+    // Fallback: hash dari package + text (first 200 chars untuk performa)
+    final textSnippet = text.length > 200 ? text.substring(0, 200) : text;
+    final combined = '$packageName|$textSnippet';
+    return combined.hashCode.toString();
+  }
+
+  /// Cek apakah notifikasi sudah pernah diproses
+  static bool _isAlreadyProcessed(String notificationId) {
+    return _processedNotificationIds.contains(notificationId);
+  }
+
+  /// Tandai notifikasi sebagai sudah diproses
+  static void _markAsProcessed(String notificationId) {
+    _processedNotificationIds.add(notificationId);
+    
+    // Cleanup jika sudah terlalu banyak (FIFO - hapus yang paling lama)
+    if (_processedNotificationIds.length > _maxProcessedIds) {
+      final toRemove = _processedNotificationIds.take(100).toList();
+      _processedNotificationIds.removeAll(toRemove);
+      print('🧹 Cleaned up ${toRemove.length} old processed notification IDs');
+    }
+  }
+
   static Future<void> _handleNotification(NotificationEvent event) async {
     try {
       // Get notification details
@@ -162,6 +198,18 @@ class NotificationService {
       print('Title: $title');
       print('Text: $text');
       print('UID: $uid');
+
+      // DUPLICATE CHECK: Cek apakah notifikasi ini sudah pernah diproses
+      final notificationId = _generateNotificationId(packageName, text, uid);
+      if (_isAlreadyProcessed(notificationId)) {
+        print('⚠️ DUPLICATE DETECTED! Notification already processed: $notificationId');
+        print('=== SKIPPING DUPLICATE NOTIFICATION ===\n');
+        return;
+      }
+
+      // Tandai sebagai sedang diproses (mark early untuk mencegah race condition)
+      _markAsProcessed(notificationId);
+      print('✅ Notification marked as processed: $notificationId');
 
       // Match dengan rules yang ada
       final matchedRule = await RulesManager.matchNotification(
@@ -482,6 +530,19 @@ class NotificationService {
         print('Title: $title');
         print('Text: ${text.length > 100 ? text.substring(0, 100) + "..." : text}');
         print('UID: $uid');
+        
+        // DUPLICATE CHECK: Skip jika sudah pernah diproses
+        final notificationId = _generateNotificationId(packageName, text, uid);
+        if (_isAlreadyProcessed(notificationId)) {
+          print('⚠️ DUPLICATE DETECTED! Already processed: $notificationId');
+          print('Skipping this active notification');
+          skippedCount++;
+          continue;
+        }
+        
+        // Tandai sebagai sedang diproses
+        _markAsProcessed(notificationId);
+        print('✅ Notification marked as processed: $notificationId');
         
         // Match dengan rules yang ada
         final matchedRule = await RulesManager.matchNotification(

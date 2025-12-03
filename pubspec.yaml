@@ -1,7 +1,7 @@
-name: notlistfl
-description: "A new Flutter project."
+name: notiflistener
+description: "Notification Listener untuk webpulsa w38s"
 publish_to: 'none'
-version: 0.1.0
+version: 1.0.0+7
 
 environment:
   sdk: ^3.7.2

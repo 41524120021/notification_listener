@@ -18,7 +18,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.notiflistener.app"
     compileSdk = 35
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -38,6 +38,22 @@ android {
         targetSdk = 35  // Updated to API 35 (Android 15) for Play Store compliance
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Support for 16KB page size (required for Android 15+ devices)
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86_64"))
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
     }
 
     signingConfigs {
@@ -65,6 +81,18 @@ android {
             )
         }
     }
+    
+    // Support for 16KB page size - zip alignment for native libraries
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+}
+
+dependencies {
+    // AndroidX Core for edge-to-edge support (WindowCompat)
+    implementation("androidx.core:core-ktx:1.12.0")
 }
 
 flutter {

@@ -21,6 +21,22 @@ import 'services/app_event_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Configure system UI for edge-to-edge display (Android 15+ compatibility)
+  // This prevents Flutter from using deprecated APIs like setStatusBarColor
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+  
+  // Enable edge-to-edge mode
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.edgeToEdge,
+  );
+  
   // Initialize foreground task
   _initForegroundTask();
   
@@ -182,7 +198,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     
     if (!hasAccepted && mounted) {
       // Show privacy policy dialog
-      final accepted = await PrivacyPolicyDialog.show(context);
+      final accepted = await PrivacyPolicyDialogHelper.show(context);
       
       if (!accepted) {
         // User menolak - keluar dari aplikasi
@@ -699,8 +715,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ? Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          // Background lebih solid agar terlihat di edge-to-edge mode
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.deepPurple.shade600.withOpacity(0.95),
+                              Colors.purple.shade500.withOpacity(0.95),
+                            ],
+                          ),
                           borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.4),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Text(
                           '⏳ ${(_remainingTime ~/ 60).toString().padLeft(1, '0')}:${(_remainingTime % 60).toString().padLeft(2, '0')}',
@@ -708,6 +741,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black45,
+                                offset: Offset(0, 1),
+                                blurRadius: 2,
+                              ),
+                            ],
                           ),
                         ),
                       )
@@ -840,6 +880,58 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ],
         ),
       ),
+      // Floating timer badge yang selalu terlihat (untuk edge-to-edge mode)
+      floatingActionButton: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8, right: 8),
+          child: Align(
+            alignment: Alignment.topRight,
+            child: GestureDetector(
+              onTap: _onCountdownTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.deepPurple.shade600,
+                      Colors.purple.shade500,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.5),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.timer, color: Colors.white, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${(_remainingTime ~/ 60).toString().padLeft(1, '0')}:${(_remainingTime % 60).toString().padLeft(2, '0')}',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
     );
   }
 }

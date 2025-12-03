@@ -143,9 +143,10 @@ As required by Google Play, we disclose:
 
 If you have questions or concerns about this Privacy Policy or the App's data practices, please contact:
 
-**Developer**: [Your Name/Company]  
-**Email**: [Your Email]  
-**GitHub**: https://github.com/[your-username]/notiflistener_share
+**Developer**: [Galih Rakasiwi]  
+**Email**: justrakka@gmail.com  
+**GitHub**: https://github.com/41524120021/notification_listener
+
 
 ## Consent
 
@@ -307,9 +308,9 @@ Sesuai yang disyaratkan oleh Google Play, kami mengungkapkan:
 
 Jika Anda memiliki pertanyaan atau kekhawatiran tentang Kebijakan Privasi ini atau praktik data Aplikasi, silakan hubungi:
 
-**Pengembang**: [Nama/Perusahaan Anda]  
-**Email**: [Email Anda]  
-**GitHub**: https://github.com/[username-anda]/notiflistener_share
+**Pengembang**: [galih rakasiwi]  
+**Email**: [justrakka@gmail.com]  
+**GitHub**: https://github.com/41524120021/notification_listener
 
 ## Persetujuan
 
